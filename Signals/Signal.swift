@@ -36,8 +36,6 @@ final public class Signal<T> {
     
     private var signalListeners: [SignalSubscription<T>] = []
     
-    private let mainQueue = DispatchQueue.main
-    
     /// Initializer.
     ///
     /// - parameter retainLastData: Whether or not the Signal should retain a reference to the last data it was fired
@@ -114,12 +112,6 @@ final public class Signal<T> {
         return signalListener
     }
     
-    public func fireOnMainThread(_ data: T) {
-        mainQueue.async {
-            self.fire(data)
-        }
-    }
-    
     /// Fires the `Singal`.
     ///
     /// - parameter data: The data to fire the `Signal` with.
@@ -181,6 +173,7 @@ final public class SignalSubscription<T> {
     fileprivate var filter: (SignalFilter)?
     fileprivate var callback: SignalCallback
     fileprivate var dispatchQueue: DispatchQueue?
+    private let defaultQueue = DispatchQueue.main
     private var sampleInterval: TimeInterval?
     
     fileprivate init(observer: AnyObject, callback: @escaping SignalCallback) {
@@ -257,7 +250,7 @@ final public class SignalSubscription<T> {
                 }
                 let millis = Int(sampleInterval * 1000)
                 let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(millis)
-                let queue = dispatchQueue ?? DispatchQueue.main
+                let queue = dispatchQueue ?? defaultQueue
                 queue.asyncAfter(deadline: deadline, execute: block)
             }
         } else {
