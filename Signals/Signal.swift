@@ -129,7 +129,7 @@ final public class Signal<T> {
         flushCancelledListeners()
         signalListeners.forEach {
             if $0.filter?(data) != false {
-                _ = $0.dispatch(data: data)
+                $0.dispatch(data: data)
             }
         }
     }
@@ -235,6 +235,7 @@ final public class SignalSubscription<T> {
     
     // MARK: - Internal Interface
     
+    @discardableResult
     func dispatch(data: T) -> Bool {
         guard observer != nil else { return false }
         
